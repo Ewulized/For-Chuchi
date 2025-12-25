@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>For My Dearest Chuchi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400&family=Great+Vibes&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --cardinal-red: #8B0000;
+      --gold-leaf: #D4AF37;
+      --deep-night: #020205;
+      --rose-pink: #FF6B8B;
+      --moonlight: #E6E6FA;
+    }
+
+body, html {
+  height: 100%;
+  overflow: hidden;
+  background-image: url("bg.png"); 
+  background-size: cover;     
+  background-position: center; 
+  background-repeat: no-repeat;
+  font-family: 'Montserrat', sans-serif;
+  position: relative;
+}
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      opacity: 0.8;
+    }
+
+    .wrapper {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-text {
+      color: white;
+      margin-bottom: 60px;
+      letter-spacing: 12px;
+      font-weight: 200;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      text-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    /* Envelope */
+    .envelope-wrapper {
+      position: relative;
+      cursor: pointer;
+      width: 300px;
+      height: 200px;
+      margin-bottom: 80px;
+    }
+
+    .envelope {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: var(--cardinal-red);
+      border-radius: 2px;
+      box-shadow: 0 20px 60px rgba(0,0,0,1);
+      transition: transform 0.3s ease;
+    }
+
+    .envelope::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-left: 150px solid transparent;
+      border-right: 150px solid transparent;
+      border-top: 100px solid #600000;
+      transform-origin: top;
+      transition: transform 1s ease;
+    }
+
+    .envelope.open::before {
+      transform: rotateX(180deg);
+    }
+
+    .seal {
+      position: absolute;
+      top: 85px;
+      left: 135px;
+      width: 30px;
+      height: 30px;
+      background: var(--gold-leaf);
+      border-radius: 50%;
+      z-index: 5;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      cursor: pointer;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .inner-letter {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 280px;
+      height: 180px;
+      background: #0d8f59;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.8rem;
+      color: #3d3d3d;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* Continue Button */
+    .continue-btn {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(212, 175, 55, 0.3);
+      border: 1px solid var(--gold-leaf);
+      color: var(--gold-leaf);
+      padding: 12px 30px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      letter-spacing: 3px;
+      cursor: pointer;
+      z-index: 40;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s ease;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+    }
+
+    .continue-btn.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .continue-btn:hover {
+      background: rgba(212, 175, 55, 0.6);
+    }
+
+    /* Step indicators */
+    .step-indicator {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      letter-spacing: 2px;
+    }
+
+    /* Heart animation */
+    .heart {
+      position: absolute;
+      font-size: 24px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    /* Message bubbles */
+    .message {
+      position: absolute;
+      color: var(--rose-pink);
+      font-family: 'Great Vibes', cursive;
+      font-size: 2rem;
+      opacity: 0;
+      text-shadow: 0 0 10px rgba(255,107,139,0.5);
+      z-index: 15;
+      pointer-events: none;
+    }
+
+    /* Memory photos - UPDATED FOR ACTUAL IMAGES */
+    .memory-photos {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 1s ease;
+      padding: 20px;
+    }
+
+    .memory-photos.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .memory-photo {
+      width: 300px;
+      height: 400px;
+      position: relative;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      transform: translateY(50px) rotate(5deg);
+      opacity: 0;
+      transition: all 0.8s ease;
+    }
+
+    .memory-photo:nth-child(2) {
+      transform: translateY(50px) rotate(-3deg);
+    }
+
+    .memory-photo:nth-child(3) {
+      transform: translateY(50px) rotate(2deg);
+    }
+
+    .photo-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .photo-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      padding: 30px 20px 20px;
+      color: white;
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.8rem;
+      text-align: center;
+    }
+
+    .photo-caption {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 300;
+      margin-top: 8px;
+      opacity: 0.8;
+    }
+
+    .memory-photo:hover .photo-image {
+      transform: scale(1.05);
+    }
+
+    /* Photo navigation */
+    .photo-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 21;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+
+    .photo-nav:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .photo-prev {
+      left: 20px;
+    }
+
+    .photo-next {
+      right: 20px;
+    }
+
+    /* Photo counter */
+    .photo-counter {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      z-index: 21;
+      opacity: 0.7;
+    }
+
+    /* Final note */
+    .final-note {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      color: white;
+      z-index: 30;
+      opacity: 0;
+      visibility: hidden;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all 1s ease;
+    }
+
+    .final-note.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .final-note h2 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: var(--gold-leaf);
+    }
+
+    .final-note p {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .signature {
+      font-family: 'Great Vibes', cursive;
+      font-size: 2rem;
+      color: var(--rose-pink);
+      margin-top: 30px;
+    }
+
+    /* PDF Viewer */
+    .pdf-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 1s ease;
+    }
+
+    .pdf-container.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .pdf-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      font-size: 12px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      z-index: 101;
+      opacity: 0.6;
+    }
+
+    .close-btn:hover {
+      opacity: 1;
+    }
+
+    /* Bottom signature */
+    .chichi-signature {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      font-family: 'Great Vibes', cursive;
+      color: rgba(255,255,255,0.3);
+      font-size: 1rem;
+    }
+
+    /* Loading placeholder for images */
+    .photo-loading {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, var(--rose-pink), var(--gold-leaf));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Great Vibes', cursive;
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    /* Responsive design for photos */
+    @media (max-width: 1100px) {
+      .memory-photos {
+        flex-direction: column;
+        gap: 20px;
+        overflow-y: auto;
+        padding: 60px 20px;
+      }
+      
+      .memory-photo {
+        width: 90%;
+        max-width: 400px;
+        height: 300px;
+      }
+      
+      .photo-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .memory-photo {
+        height: 250px;
+      }
+      
+      .photo-overlay {
+        font-size: 1.5rem;
+        padding: 20px 15px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="step-indicator" id="step-indicator">Click the envelope to begin</div>
+
+  <div class="wrapper">
+    <div class="header-text">For My Dearest Chuchi</div>
+    
+    <div class="envelope-wrapper">
+      <div class="envelope" id="envelope">
+        <div class="seal" id="seal"></div>
+        <div class="inner-letter">
+          My Beloved Chuchi
+          <small>Click the golden seal</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="continue-btn" id="continue-btn">Continue →</button>
+
+  <!-- Memory Photos Section with Image Placeholders -->
+  <div class="memory-photos" id="memory-photos">
+    <button class="photo-nav photo-prev" id="photo-prev">❮</button>
+    <button class="photo-nav photo-next" id="photo-next">❯</button>
+    
+    <div class="photo-counter" id="photo-counter">1/3</div>
+    
+    <div class="memory-photo active" data-index="0">
+      <!-- REPLACE THIS IMAGE SOURCE WITH YOUR FIRST PHOTO -->
+      <img src="Image 1.jfif" 
+           alt="Our first memory" 
+           class="photo-image">
+      <div class="photo-overlay">
+        Our Manila Peninsula Adventure
+        <div class="photo-caption">The day we learn how to manage ourselves together</div>
+      </div>
+    </div>
+    
+    <div class="memory-photo" data-index="1">
+      <!-- REPLACE THIS IMAGE SOURCE WITH YOUR SECOND PHOTO -->
+      <img src="Image 2.jfif" 
+           alt="Our laughter" 
+           class="photo-image">
+      <div class="photo-overlay">
+        Paskuhan sa Mapua Engagement
+        <div class="photo-caption">The day we help understand each other even though we are hard to understand, we make it easy.</div>
+      </div>
+    </div>
+    
+    <div class="memory-photo" data-index="2">
+      <!-- REPLACE THIS IMAGE SOURCE WITH YOUR THIRD PHOTO -->
+      <img src="Image 3.jfif" 
+           alt="Our future" 
+           class="photo-image">
+      <div class="photo-overlay">
+        Zootopia 2 Cinema
+        <div class="photo-caption">The day that reminds us that we love each other. "I love you, partner"</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="final-note" id="final-note">
+    <h2>My Christmas Prayer for You</h2>
+    <p>Dearest Chuchi,</p>
+    <p>As the stars twinkle in the winter sky and Christmas lights dance around us, my heart overflows with gratitude for you.</p>
+    <p>Your laughter is my favorite Christmas carol, your smile my brightest star.</p>
+    <p>This Christmas, I wish for you all the joy and magic you bring into my life.</p>
+    <div class="signature">With all my love,<br>Chichi</div>
+  </div>
+
+  <div class="pdf-container" id="pdf-viewer">
+    <div class="close-btn" onclick="restartExperience()">Start Over</div>
+    <iframe src="letter.pdf"></iframe>
+  </div>
+
+  <div class="chichi-signature">From Chichi ♥</div>
+
+  <!-- Audio elements - REPLACE THESE LINKS WITH YOUR FILES -->
+  <audio id="bgMusic" loop>
+    <source src="YOUR_MUSIC_FILE.mp3" type="audio/mpeg">
+  </audio>
+  
+  <audio id="voiceMessage">
+    <source src="YOUR_VOICE_MESSAGE.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="heartSound">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-heartbeat-love-903.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Simple snow animation
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    
+    // Snowflakes
+    const snowflakes = [];
+    for (let i = 0; i < 100; i++) {
+      snowflakes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        speed: Math.random() * 1 + 0.5
+      });
+    }
+    
+    function drawSnow() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      
+      snowflakes.forEach(flake => {
+        ctx.beginPath();
+        ctx.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        flake.y += flake.speed;
+        flake.x += Math.sin(flake.y * 0.01);
+        
+        if (flake.y > canvas.height) {
+          flake.y = 0;
+          flake.x = Math.random() * canvas.width;
+        }
+      });
+      
+      requestAnimationFrame(drawSnow);
+    }
+    
+    drawSnow();
+    
+    // Main experience
+    let currentStep = 0;
+    const totalSteps = 6;
+    const continueBtn = document.getElementById('continue-btn');
+    const stepIndicator = document.getElementById('step-indicator');
+    let currentPhotoIndex = 0;
+    const totalPhotos = 3;
+    
+    // Photo navigation
+    function updatePhotoNavigation() {
+      const photos = document.querySelectorAll('.memory-photo');
+      const photoCounter = document.getElementById('photo-counter');
+      
+      photos.forEach((photo, index) => {
+        if (index === currentPhotoIndex) {
+          photo.classList.add('active');
+          photo.style.opacity = '1';
+          photo.style.transform = 'translateY(0) rotate(0deg)';
+          photo.style.zIndex = '1';
+        } else {
+          photo.classList.remove('active');
+          photo.style.opacity = '0.3';
+          photo.style.transform = `translateY(20px) ${index < currentPhotoIndex ? 'rotate(-10deg)' : 'rotate(10deg)'}`;
+          photo.style.zIndex = '0';
+        }
+      });
+      
+      photoCounter.textContent = `${currentPhotoIndex + 1}/${totalPhotos}`;
+    }
+    
+    function nextPhoto() {
+      currentPhotoIndex = (currentPhotoIndex + 1) % totalPhotos;
+      updatePhotoNavigation();
+    }
+    
+    function prevPhoto() {
+      currentPhotoIndex = (currentPhotoIndex - 1 + totalPhotos) % totalPhotos;
+      updatePhotoNavigation();
+    }
+    
+    // Update step indicator
+    function updateStepIndicator() {
+      const steps = [
+        "Click the envelope to begin",
+        "Click Continue",
+        "Click Continue",
+        "Browse photos ← →", 
+        "Click Continue",
+        "Click Continue",
+        "Enjoy your letter"
+      ];
+      stepIndicator.textContent = steps[currentStep] || "";
+    }
+    
+    // Create hearts
+    function createHearts(count, x, y) {
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.innerHTML = '❤️';
+          heart.style.left = (x - 20 + Math.random() * 40) + 'px';
+          heart.style.top = (y - 20 + Math.random() * 40) + 'px';
+          heart.style.color = ['#FF6B8B', '#D4AF37', '#E6E6FA'][Math.floor(Math.random() * 3)];
+          heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+          document.body.appendChild(heart);
+          
+          // Animate heart
+          setTimeout(() => {
+            heart.style.transition = 'all 1.5s ease';
+            heart.style.opacity = '1';
+            heart.style.transform = `translate(${Math.random() * 200 - 100}px, ${-Math.random() * 100 - 50}px) scale(1.5)`;
+          }, 10);
+          
+          // Remove heart
+          setTimeout(() => {
+            heart.style.opacity = '0';
+            setTimeout(() => heart.remove(), 1500);
+          }, 1000);
+        }, i * 100);
+      }
+    }
+    
+    // Show message
+    function showMessage(text, delay = 0) {
+      setTimeout(() => {
+        const message = document.createElement('div');
+        message.className = 'message';
+        message.textContent = text;
+        message.style.left = Math.random() * 70 + 15 + '%';
+        message.style.top = Math.random() * 70 + 15 + '%';
+        message.style.color = ['#FF6B8B', '#D4AF37', '#E6E6FA'][Math.floor(Math.random() * 3)];
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+          message.style.transition = 'all 2s ease';
+          message.style.opacity = '1';
+        }, 100);
+        
+        setTimeout(() => {
+          message.style.opacity = '0';
+          setTimeout(() => message.remove(), 2000);
+        }, 3000);
+      }, delay);
+    }
+    
+    // Show continue button
+    function showContinueButton() {
+      continueBtn.classList.add('visible');
+    }
+    
+    // Hide continue button
+    function hideContinueButton() {
+      continueBtn.classList.remove('visible');
+    }
+    
+    // Step 1: Open envelope
+    function step1() {
+      const envelope = document.getElementById('envelope');
+      envelope.classList.add('open');
+      
+      // Play heartbeat sound
+      const heartSound = document.getElementById('heartSound');
+      heartSound.currentTime = 0;
+      heartSound.play().catch(e => console.log("Audio error:", e));
+      
+      // Create hearts
+      createHearts(15, 150, 100);
+      
+      // Start background music
+      const bgMusic = document.getElementById('bgMusic');
+      bgMusic.volume = 0.3;
+      bgMusic.play().catch(e => console.log("Music autoplay prevented:", e));
+      
+      // Show continue button after a short delay
+      setTimeout(() => {
+        showContinueButton();
+      }, 1000);
+    }
+    
+    // Step 2: Show messages
+    function step2() {
+      showMessage("To My Chuchi Patchuchi", 0);
+      showMessage("You're My Daisy", 500);
+      showMessage("My Lovie", 1000);
+      
+      setTimeout(() => {
+        showContinueButton();
+      }, 1500);
+    }
+    
+    // Step 3: Show memory photos
+    function step3() {
+      const memoryPhotos = document.getElementById('memory-photos');
+      memoryPhotos.classList.add('visible');
+      
+      // Initialize photo navigation
+      currentPhotoIndex = 0;
+      updatePhotoNavigation();
+      
+      // Show navigation buttons
+      document.getElementById('photo-prev').style.display = 'block';
+      document.getElementById('photo-next').style.display = 'block';
+      
+      setTimeout(() => {
+        showContinueButton();
+      }, 1500);
+    }
+    
+    // Step 4: Hide memory photos, show more messages
+    function step4() {
+      const memoryPhotos = document.getElementById('memory-photos');
+      memoryPhotos.classList.remove('visible');
+      
+      // Hide navigation buttons
+      document.getElementById('photo-prev').style.display = 'none';
+      document.getElementById('photo-next').style.display = 'none';
+      
+      showMessage("Forever Yours", 300);
+      showMessage("Always in My Heart", 800);
+      showMessage("I love you deeply", 300);
+      showMessage("I love you most", 800);
+      showMessage("I love you too", 300);
+      showMessage("I love you more", 800);
+      showMessage("I love you mostest", 300);
+      showMessage("MUAAAP!", 800);
+
+      setTimeout(() => {
+        showContinueButton();
+      }, 1500);
+    }
+    
+    // Step 5: Show final note
+    function step5() {
+      const finalNote = document.getElementById('final-note');
+      finalNote.classList.add('visible');
+      
+      setTimeout(() => {
+        showContinueButton();
+      }, 1000);
+    }
+    
+    // Step 6: Show PDF and play voice message
+    function step6() {
+      const finalNote = document.getElementById('final-note');
+      finalNote.classList.remove('visible');
+      
+      const pdfViewer = document.getElementById('pdf-viewer');
+      pdfViewer.classList.add('visible');
+      
+      // Play voice message
+      const voiceMessage = document.getElementById('voiceMessage');
+      voiceMessage.volume = 0.7;
+      voiceMessage.play().catch(e => console.log("Voice message error:", e));
+      
+      // Hide continue button on final step
+      hideContinueButton();
+    }
+    
+    // Handle next step
+    function nextStep() {
+      hideContinueButton();
+      currentStep++;
+      updateStepIndicator();
+      
+      switch(currentStep) {
+        case 1:
+          step1();
+          break;
+        case 2:
+          step2();
+          break;
+        case 3:
+          step3();
+          break;
+        case 4:
+          step4();
+          break;
+        case 5:
+          step5();
+          break;
+        case 6:
+          step6();
+          break;
+      }
+    }
+    
+    // Event listeners
+    document.getElementById('envelope').addEventListener('click', function(e) {
+      if (currentStep === 0) {
+        nextStep();
+      }
+    });
+    
+    document.getElementById('seal').addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (currentStep === 0) {
+        nextStep();
+      } else {
+        createHearts(5, e.clientX, e.clientY);
+      }
+    });
+    
+    continueBtn.addEventListener('click', nextStep);
+    
+    // Photo navigation listeners
+    document.getElementById('photo-next').addEventListener('click', function(e) {
+      e.stopPropagation();
+      nextPhoto();
+    });
+    
+    document.getElementById('photo-prev').addEventListener('click', function(e) {
+      e.stopPropagation();
+      prevPhoto();
+    });
+    
+    // Keyboard navigation for photos
+    document.addEventListener('keydown', function(e) {
+      if (document.getElementById('memory-photos').classList.contains('visible')) {
+        if (e.key === 'ArrowRight') {
+          nextPhoto();
+        } else if (e.key === 'ArrowLeft') {
+          prevPhoto();
+        }
+      }
+    });
+    
+    // Swipe support for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.getElementById('memory-photos').addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+    
+    document.getElementById('memory-photos').addEventListener('touchend', function(e) {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+    
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+      
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          // Swipe left - next photo
+          nextPhoto();
+        } else {
+          // Swipe right - previous photo
+          prevPhoto();
+        }
+      }
+    }
+    
+    // Restart experience
+    function restartExperience() {
+      location.reload();
+    }
+    
+    // Initialize
+    updateStepIndicator();
+    
+    // Preload images for better experience
+    window.addEventListener('load', function() {
+      const images = document.querySelectorAll('.photo-image');
+      images.forEach(img => {
+        // Create a new image to preload
+        const preload = new Image();
+        preload.src = img.src;
+      });
+    });
+  </script>
+</body>
+</html>
